@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
-import EtaPanel from './EtaPanel';
+import EtaPanel from './components/EtaPanel';
+import RouteSelector from './components/RouteSelector';
 
 function App(props) {
   const providers = props.providers;
@@ -9,10 +10,23 @@ function App(props) {
     selectedRoute: '',
     selectedDirection: 'outbound',
     selectedStopId: '',
-    routeData: [],
+    routeData: {},
     routeStops: [],
     etaData: [],
+    isLoading: true,
+    error: null
   });
+
+  const setLoading = isLoading => {
+    if (appData.isLoading !== isLoading) {
+      setAppData({ ...appData, isLoading: isLoading });
+    }
+  }
+
+  const raiseError = err => {
+    console.error(err.message);
+    setAppData({ ...appData, error: err });
+  }
 
   const onSubmit = event => {
     event.preventDefault();
@@ -21,44 +35,44 @@ function App(props) {
     const providerApi = providers[appData.selectedProvider];
     providerApi.getEtaByRouteAndStopId(appData.selectedRoute, stopId)
       .then(data => setAppData({ ...appData, selectedStopId: stopId, etaData: data }))
-      .catch(err => console.error(err.message));
+      .catch(raiseError);
   }
 
   const updateRoutes = formData => {
     const providerApi = providers[formData['selectedProvider']];
+    setLoading(true);
     providerApi.getRoutes()
       .then(data => {
         updateRouteStops(
-          { ...formData, routeData: data, selectedRoute: Object.keys(data)[0] }
+          { ...formData, routeData: data, selectedRoute: '' }
         );
       })
-      .catch(err => console.error(err.message));
+      .catch(raiseError);
   }
 
   const updateRouteStops = formData => {
     const providerApi = providers[formData['selectedProvider']];
+    if (formData['selectedRoute'] === '') {
+      setAppData({ ...formData, routeStops: [], selectedStopId: '', isLoading: false });
+      return;
+    }
+
+    if (formData['selectedRoute'] === appData['selectedRoute'] &&
+      formData['selectedDirection'] === appData['selectedDirection']) {
+      return;
+    }
+
+    setLoading(true);
     providerApi.getStopsByRouteAndBound(formData['selectedRoute'], formData['selectedDirection'])
-      .then(data => setAppData({ ...formData, routeStops: data, selectedStopId: '' }))
-      .catch(err => console.error(err.message));
+      .then(data => setAppData({ ...formData, routeStops: data, selectedStopId: '', isLoading: false }))
+      .catch(raiseError);
   }
 
   const resetStopId = () => {
     setAppData({ ...appData, selectedStopId: '' });
   }
 
-  const fieldUpdator = (fieldName, callback = null) => {
-    return event => {
-      event.preventDefault();
-      var copy = { ...appData };
-      copy[fieldName] = event.target.value;
-      setAppData(copy);
-      if (callback !== null) {
-        callback(copy);
-      }
-    }
-  }
-
-  if (appData.routeData.length === 0) {
+  if (Object.keys(appData.routeData).length === 0) {
     updateRoutes(appData);
   }
 
@@ -68,19 +82,28 @@ function App(props) {
       <form onSubmit={onSubmit}>
         <fieldset>
           <label htmlFor="provider">Provider: </label>
-          <select id="provider" name="Provider" value={appData.selectedProvider} onChange={fieldUpdator('selectedProvider', updateRoutes)}>
+          <select
+            id="provider"
+            name="Provider"
+            value={appData.selectedProvider}
+            onChange={event => updateRoutes({ ...appData, selectedProvider: event.target.value })}>
             {Object.keys(providers).map(provider => <option value={provider} key={provider}>{provider}</option>)}
           </select>
         </fieldset>
         <fieldset>
-          <label htmlFor="route">Route: </label>
-          <select id="route" name="Route" value={appData.selectedRoute} onChange={fieldUpdator('selectedRoute', updateRouteStops)}>
-            {Object.keys(appData.routeData).map(route => <option value={route} key={route}>{route}</option>)}
-          </select>
+          <RouteSelector
+            value={appData.selectedRoute}
+            items={Object.keys(appData.routeData)}
+            shouldItemRender={(item, value) => item.indexOf(value) > -1}
+            itemSelected={val => updateRouteStops({ ...appData, selectedRoute: val })} />
         </fieldset>
         <fieldset>
           <label htmlFor="direction">Destination: </label>
-          <select id="direction" name="Direction" value={appData.selectedDirection} onChange={fieldUpdator('selectedDirection', updateRouteStops)}>
+          <select
+            id="direction"
+            name="Direction"
+            value={appData.selectedDirection}
+            onChange={event => updateRouteStops({ ...appData, selectedDirection: event.target.value })}>
             {appData.selectedRoute !== '' && appData.routeData[appData.selectedRoute]
               .map(o => {
                 const bound = o['bound'] === 'O' ? "outbound" : "inbound";
@@ -98,9 +121,14 @@ function App(props) {
               return <option value={stopId} key={key}>{stop['name_en']}</option>
             })}
           </select>
-          <button type="submit">{appData.selectedStopId !== '' ? 'Refresh' : 'Go'}</button>
+        </fieldset>
+        <fieldset>
+          {appData.isLoading ?
+            <button type="submit" disabled className="btn-disabled">Loading...</button> :
+            <button type="submit">{appData.selectedStopId !== '' ? 'Refresh' : 'Go'}</button>}
         </fieldset>
       </form>
+      {appData.error && <div className="warn-text">{appData.error.message}</div>}
       <hr></hr>
       <EtaPanel selectedRoute={appData.selectedRoute} selectedStopId={appData.selectedStopId} etaData={appData.etaData} />
     </main>

@@ -149,7 +149,8 @@ textarea {
     color: var(--c4);
     background: var(--c2);
     border: 0;
-    padding: 0.6em
+    padding: 0.6em;
+    min-width: 7em
 }
 
 button,
@@ -162,7 +163,6 @@ input[type="button"] {
     color: var(--c5);
     background: var(--c1);
     border: 0;
-    margin: 4px;
     padding: 0.6em;
     cursor: pointer;
     text-align: center

@@ -5,3 +5,7 @@ main {
   text-align: left;
   padding: 40px 20px;
 }
+
+.warn-text {
+  color: tomato;
+}
