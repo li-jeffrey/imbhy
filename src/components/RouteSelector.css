@@ -12,6 +12,7 @@
   background: var(--c3);
   margin-left: 4em;
   min-width: 8.5em;
+  z-index: 999;
 }
 
 .dropdown-item {

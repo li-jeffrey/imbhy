@@ -25,7 +25,6 @@ export default function RouteSelector(props) {
             return;
         }
         setState({ ...state, value: event.target.value, dropdownOpen: false });
-        props.itemSelected(state.value);
     }
 
     const dropdownItems = props.items

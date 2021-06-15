@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import EtaPanel from './components/EtaPanel';
 import RouteSelector from './components/RouteSelector';
+import StopSelector from './components/StopSelector';
 
 function App(props) {
   const providers = props.providers;
@@ -112,16 +113,9 @@ function App(props) {
               })}
           </select>
         </fieldset>
-        <fieldset>
-          <label htmlFor="stop">Stop: </label>
-          <select id="stop" name="Stop" onChange={resetStopId}>
-            {appData.routeStops.map((stop, i) => {
-              const stopId = stop['stop'];
-              const key = `${stopId}-${i}`
-              return <option value={stopId} key={key}>{stop['name_en']}</option>
-            })}
-          </select>
-        </fieldset>
+        <StopSelector
+          items={appData.routeStops}
+          itemSelected={resetStopId} />
         <fieldset>
           {appData.isLoading ?
             <button type="submit" disabled className="btn-disabled">Loading...</button> :
