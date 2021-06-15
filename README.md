@@ -1,5 +1,7 @@
 # Is my bus here yet?
 
+[![Deploy to GitHub Pages](https://github.com/li-jeffrey/imbhy/actions/workflows/node.js.yml/badge.svg)](https://github.com/li-jeffrey/imbhy/actions/workflows/node.js.yml)
+
 Live bus timetable display using data.gov.hk APIs for [KMB](https://data.gov.hk/en-data/dataset/hk-td-tis_21-etakmb) and [NWFB/Citybus](https://data.gov.hk/en-data/dataset/nwfb-eta-transport-realtime-eta).
 
 ## Development and Testing
