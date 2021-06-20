@@ -3,7 +3,6 @@ import { groupBy } from "./util";
 const BASE_URL = "https://rt.data.gov.hk";
 
 const ROUTES = {};
-const STOPS = {};
 
 async function getRoutes(companyId) {
     if (!(companyId in ROUTES)) {
@@ -44,24 +43,15 @@ async function getStopIdsByRoute(companyId, route, bound) {
 }
 
 async function getStopByStopId(stopId) {
-    if (!(stopId in STOPS)) {
-        const response = await fetch(`${BASE_URL}/v1/transport/citybus-nwfb/stop/${stopId}`);
-        if (!response.ok) throw new Error(response.statusText);
-        const data = await response.json();
-        STOPS[stopId] = data['data'];
-    }
-
-    return STOPS[stopId];
+    const response = await fetch(`${BASE_URL}/v1/transport/citybus-nwfb/stop/${stopId}`);
+    if (!response.ok) throw new Error(response.statusText);
+    const data = await response.json();
+    return data['data'];
 }
 
 async function getStopsByRoute(companyId, route, bound) {
     const stopIds = await getStopIdsByRoute(companyId, route, bound);
-    const stops = [];
-    for (const stopId of stopIds) {
-        stops.push(await getStopByStopId(stopId));
-    }
-
-    return stops;
+    return await Promise.all(stopIds.map(stopId => getStopByStopId(stopId)));
 }
 
 async function getEta(companyId, route, stopId) {
