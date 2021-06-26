@@ -1,15 +1,14 @@
-.stop-selector-container {
-    display: inline-block
-}
-
-.btn-location-container {
-    margin-left: -1em;
+.stop-selector {
+    min-width: 300px;
 }
 
 .btn-location {
     color: var(--c1);
     background: none;
     padding: 0;
+    position: relative;
+    top: 7px;
+    left: 0.6em;
 }
 
 .btn-location:disabled {

@@ -1,7 +1,8 @@
 import './RouteSelector.css';
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function RouteSelector(props) {
+    const textInput = useRef(null);
     const [state, setState] = useState({
         value: '',
         dropdownOpen: false,
@@ -16,8 +17,13 @@ export default function RouteSelector(props) {
     }
 
     const itemClicked = item => {
-        setState({ ...state, value: item, dropdownOpen: false });
-        props.itemSelected(item);
+        setState({ ...state, value: item, dropdownOpen: false, ignoreBlur: false });
+        props.onItemSelected(item);
+    }
+
+    const removeItemClicked = item => {
+        props.onRemoveRecentItem(item);
+        textInput.current.focus();
     }
 
     const onBlur = event => {
@@ -27,34 +33,49 @@ export default function RouteSelector(props) {
         setState({ ...state, value: event.target.value, dropdownOpen: false });
     }
 
-    const dropdownItems = props.items
+    const recentItems = props.recentItems
         .filter(item => props.shouldItemRender(item, state.value))
         .map(item =>
             <div key={`dropdown-${item}`}
-                className="dropdown-item"
-                onClick={() => itemClicked(item)}
-                onTouchStart={() => setState({ ...state, ignoreBlur: true })}
-                onMouseEnter={() => setState({ ...state, ignoreBlur: true })}
-                onMouseLeave={() => setState({ ...state, ignoreBlur: false })}
-            >{item}</div>
+                className="dropdown-item">
+                <div className="dropdown-item-text recent-item" onClick={() => itemClicked(item)}>{item}</div>
+                <button className="dropdown-item-btn"
+                    onClick={() => removeItemClicked(item)}>&times;</button>
+            </div>
         );
+
+    const otherItems = props.items
+        .filter(item => props.shouldItemRender(item, state.value))
+        .map(item =>
+            <div key={`dropdown-${item}`}
+                className="dropdown-item">
+                <div className="dropdown-item-text" onClick={() => itemClicked(item)}>{item}</div>
+            </div>
+        );
+
+    const allItems = recentItems.concat(otherItems);
 
     return (
         <div>
             <label htmlFor="route">Route: </label>
             <input type="text"
+                ref={textInput}
                 name="route"
                 id="route"
                 placeholder="Enter a route..."
                 className="dropdown-input"
                 value={state.value}
+                disabled={props.items.length === 0 && props.recentItems.length === 0}
                 onChange={event => setState({ ...state, value: event.target.value })}
                 onBlur={onBlur}
-                onClick={displayDropdown} 
-                autoComplete="off"/>
+                onFocus={displayDropdown}
+                autoComplete="off" />
             {state.dropdownOpen &&
-                <div className="dropdown-container">
-                    {dropdownItems}
+                <div className="dropdown-container"
+                    onTouchStart={() => setState({ ...state, ignoreBlur: true })}
+                    onMouseEnter={() => setState({ ...state, ignoreBlur: true })}
+                    onMouseLeave={() => setState({ ...state, ignoreBlur: false })}>
+                    {allItems}
                 </div>}
         </div>
     )

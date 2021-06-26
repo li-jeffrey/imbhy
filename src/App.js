@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import EtaPanel from './components/EtaPanel';
+import { AddItem, GetCache, HasItem, RemoveItem, ToArray } from './components/RouteCache';
 import RouteSelector from './components/RouteSelector';
 import StopSelector from './components/StopSelector';
 
@@ -12,6 +13,7 @@ function App(props) {
     selectedDirection: 'outbound',
     selectedStopId: '',
     routeData: {},
+    recentRoutes: null,
     routeStops: [],
     etaData: [],
     isLoading: true,
@@ -35,7 +37,12 @@ function App(props) {
     const stopId = formData.get('Stop');
     const providerApi = providers[appData.selectedProvider];
     providerApi.getEtaByRouteAndStopId(appData.selectedRoute, stopId)
-      .then(data => setAppData({ ...appData, selectedStopId: stopId, etaData: data }))
+      .then(data => setAppData({
+        ...appData,
+        selectedStopId: stopId,
+        etaData: data,
+        recentRoutes: AddItem(appData.recentRoutes, appData.selectedRoute)
+      }))
       .catch(raiseError);
   }
 
@@ -44,9 +51,12 @@ function App(props) {
     setLoading(true);
     providerApi.getRoutes()
       .then(data => {
-        updateRouteStops(
-          { ...formData, routeData: data, selectedRoute: '' }
-        );
+        updateRouteStops({
+          ...formData,
+          routeData: data,
+          selectedRoute: '',
+          recentRoutes: GetCache(formData['selectedProvider'])
+        });
       })
       .catch(raiseError);
   }
@@ -69,11 +79,17 @@ function App(props) {
       .catch(raiseError);
   }
 
+  const isRecentItem = item => HasItem(appData.recentRoutes, item);
+
+  const removeRecentItem = item => {
+    setAppData({ ...appData, recentRoutes: RemoveItem(appData.recentRoutes, item) });
+  }
+
   const resetStopId = () => {
     setAppData({ ...appData, selectedStopId: '' });
   }
 
-  if (Object.keys(appData.routeData).length === 0) {
+  if (Object.keys(appData.routeData).length === 0 && appData.error == null) {
     updateRoutes(appData);
   }
 
@@ -94,9 +110,11 @@ function App(props) {
         <fieldset>
           <RouteSelector
             value={appData.selectedRoute}
-            items={Object.keys(appData.routeData)}
+            recentItems={ToArray(appData.recentRoutes)}
+            items={Object.keys(appData.routeData).filter(item => !isRecentItem(item))}
             shouldItemRender={(item, value) => item.indexOf(value) > -1}
-            itemSelected={val => updateRouteStops({ ...appData, selectedRoute: val })} />
+            onRemoveRecentItem={removeRecentItem}
+            onItemSelected={val => updateRouteStops({ ...appData, selectedRoute: val })} />
         </fieldset>
         <fieldset>
           <label htmlFor="direction">Destination: </label>
@@ -115,7 +133,7 @@ function App(props) {
         </fieldset>
         <StopSelector
           items={appData.routeStops}
-          itemSelected={resetStopId} />
+          onItemSelected={resetStopId} />
         <fieldset>
           {appData.isLoading ?
             <button type="submit" disabled className="btn-disabled">Loading...</button> :

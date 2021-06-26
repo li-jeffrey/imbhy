@@ -12,16 +12,41 @@
   background: var(--c3);
   margin-left: 4em;
   min-width: 8.5em;
-  z-index: 999;
+  z-index: 100;
 }
 
 .dropdown-item {
-  padding: 4px;
-  border-radius: var(--rc);
-  cursor: pointer;
   min-width: 7em;
+  text-align: left;
 }
 
 div.dropdown-item:hover {
   background: var(--c2)
+}
+
+.dropdown-item-text {
+  cursor: pointer;
+  padding: 0.2em 1.2em;
+  display: inline-block;
+  width: 100%;
+}
+
+.recent-item {
+  font-style: italic;
+}
+
+.dropdown-item-btn {
+  display: inline-block;
+  position: absolute;
+  padding: 0.2em 0;
+  right: 7px;
+  background: none;
+  color: var(--c6);
+  font-size: 1.25em;
+  margin: 1px;
+  z-index: 101;
+}
+
+.dropdown-item-btn:hover {
+  color: var(--c4);
 }
