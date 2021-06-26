@@ -1,0 +1,14 @@
+.eta-table {
+    margin: 1.5em auto;
+}
+
+/* mobile + tablet */
+@media only screen and (max-width: 768px) {
+    .eta-table {
+        margin: 1.5em;
+    }
+}
+
+.eta-remarks-col {
+    min-width: 250px;
+}

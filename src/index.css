@@ -184,3 +184,9 @@ fieldset {
     border: 0;
     display: inline-block;
 }
+
+@media only screen and (max-width: 768px) {
+    fieldset {
+        display: block;
+    }
+}

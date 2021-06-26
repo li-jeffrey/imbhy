@@ -1,3 +1,5 @@
+import './EtaPanel.css';
+
 function millisToMins(millis) {
     return Math.floor(millis / (1000 * 60));
 }
@@ -48,11 +50,11 @@ export default function EtaPanel(props) {
     }
 
     return (
-        <table>
+        <table className="eta-table">
             <thead>
                 <tr>
                     <td>ETA</td>
-                    <td>Remarks</td>
+                    <td className="eta-remarks-col">Remarks</td>
                 </tr>
             </thead>
             <tbody>
