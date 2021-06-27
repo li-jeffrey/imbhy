@@ -73,6 +73,7 @@ export default function RouteSelector(props) {
             {state.dropdownOpen &&
                 <div className="dropdown-container"
                     onTouchStart={() => setState({ ...state, ignoreBlur: true })}
+                    onTouchMove={() => setState({ ...state, ignoreBlur: false })}
                     onMouseEnter={() => setState({ ...state, ignoreBlur: true })}
                     onMouseLeave={() => setState({ ...state, ignoreBlur: false })}>
                     {allItems}
