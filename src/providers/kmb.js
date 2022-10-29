@@ -49,6 +49,7 @@ async function getEta(route, stopId) {
 }
 
 export const KMB_PROVIDER = {
+    displayName: 'KMB',
     getRoutes: getRoutes,
     getStopsByRouteAndBound: getStopsByRoute,
     getEtaByRouteAndStopId: getEta

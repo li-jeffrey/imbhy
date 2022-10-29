@@ -104,7 +104,7 @@ function App(props) {
             name="Provider"
             value={appData.selectedProvider}
             onChange={event => updateRoutes({ ...appData, selectedProvider: event.target.value })}>
-            {Object.keys(providers).map(provider => <option value={provider} key={provider}>{provider}</option>)}
+            {Object.entries(providers).map(([providerKey, provider]) => <option value={providerKey} key={providerKey}>{provider.displayName}</option>)}
           </select>
         </fieldset>
         <fieldset>
